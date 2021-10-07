@@ -1,36 +1,78 @@
 console.log('Starting code..');
-getUser(1,userFunc);
+/*
+getUser(1,(theUser) => {
+    getRepositories(theUser,(repos) => {
+        console.log(`The repos : ${JSON.stringify(repos)}`);
+        getCommits(repos,new Promise((resolve,reject) => {
+            resolve()
+        }))
+    });
+});
+*/
+/*
+const p = getUser(1);
 
-function displayCommits(commits) {
-    console.log(commits);
+p.then(user => getRepositories(user.githubusername))
+.then(repos => getCommits(repos))
+.then(commits => console.log(commits))
+.catch(err => console.log(`Error : ${err.message}`));
+*/
+// async and await approach
+
+async function displayCommits(){
+    try{
+        const user = await getUser(1);
+        const repos = await getRepositories(user.githubusername);
+        const commits = await getCommits(repos);
+        console.log(`commits = ${commits}`);
+    }
+    catch(err){
+        console.log(err.message);
+    }
 }
 
-function passRepos(repos){
-    getCommits(repos,displayCommits);
+displayCommits();
+
+
+/*
+p.then((userobj) => {
+    getRepositories(userobj.githubusername).then((repos) => {
+        getCommits(repos).then((commits) => {
+            console.log(commits);
+        })
+        .catch((err) => console.log(new Error(err).message));
+    })
+    .catch((err) => console.log(new Error(err).message));
+})
+.catch((err) => console.log(new Error(err).message));
+*/
+
+
+
+function getUser(id){
+
+    return new Promise((resolve,reject) => {
+        
+        setTimeout(() => {
+            resolve({id: id, githubusername: 'cthacker-udel'});
+        },2000);
+
+    });
+
 }
 
-function userFunc(theUser){
-    getRepositories(theUser,passRepos);
+function getRepositories(username){
+
+    return new Promise((resolve,reject) => {
+
+        setTimeout(() => {
+            resolve({repos: [username, 'repo1', 'repo2', 'repo3']});
+        },3000);
+
+    })
 }
 
-
-
-function getUser(id,callback){
-
-    setTimeout(() => {
-        console.log('Getting user from database');
-        callback({id: id, githubUsername: 'cthacker-udel'});
-    },2000);
-
-}
-
-function getRepositories(username,callback){
-    setTimeout(() => {
-        callback({repos: [username,'repo1','repo2','repo3']});
-    },3000);
-}
-
-function getCommits(repo,callback){
+function getCommits(repo){
 
     const commits = {
 
@@ -40,8 +82,12 @@ function getCommits(repo,callback){
 
     }
 
-    setTimeout(() => {
-        callback(commits[repo.repos[1]]);
-    },3000);
+    return new Promise((resolve,reject) => {
+
+        setTimeout(() => {
+            resolve(commits[repo.repos[2]]);
+        },3000);
+
+    })
 
 }
